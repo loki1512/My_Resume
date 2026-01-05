@@ -2,21 +2,94 @@
 <html>
 <head>
   <title>Chat Anywhere</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; background:#f2f2f2; }
-    #chat { height:300px; overflow:auto; background:#fff; padding:10px; }
-    input { width:80%; padding:8px; }
-    button { padding:8px; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #e5ddd5;
+    }
+
+    /* Header */
+    .header {
+      background: #075e54;
+      color: white;
+      padding: 12px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    /* Chat area */
+    #chat {
+      padding: 10px;
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+
+    .msg {
+      max-width: 75%;
+      padding: 8px 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      font-size: 14px;
+      clear: both;
+    }
+
+    .me {
+      background: #dcf8c6;
+      float: right;
+    }
+
+    .other {
+      background: #fff;
+      float: left;
+    }
+
+    .name {
+      font-size: 11px;
+      color: #555;
+      margin-bottom: 2px;
+    }
+
+    /* Input bar */
+    .input-bar {
+      display: flex;
+      padding: 8px;
+      background: #f0f0f0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .input-bar input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+    }
+
+    .input-bar button {
+      margin-left: 8px;
+      padding: 10px 16px;
+      border-radius: 50%;
+      border: none;
+      background: #075e54;
+      color: white;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
 
-<h2>Chat Anywhere</h2>
+<div class="header">Chat Anywhere</div>
+
 <div id="chat"></div>
 
-<input id="name" placeholder="Your name"><br><br>
-<input id="msg" placeholder="Type message">
-<button onclick="send()">Send</button>
+<div class="input-bar">
+  <input id="msg" placeholder="Type a message">
+  <button onclick="send()">➤</button>
+</div>
 
 <script type="module" src="script.js"></script>
 </body>
