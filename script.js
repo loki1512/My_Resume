@@ -14,27 +14,44 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// 🔐 Ask for name once
+let username = localStorage.getItem("username");
+if (!username) {
+  username = prompt("Enter your name");
+  if (!username) username = "User" + Math.floor(Math.random() * 1000);
+  localStorage.setItem("username", username);
+}
+
 const chat = document.getElementById("chat");
 
+// 🔁 Listen for messages
 onSnapshot(collection(db, "messages"), (snapshot) => {
   chat.innerHTML = "";
   snapshot.forEach(doc => {
     const d = doc.data();
-    chat.innerHTML += `<p><b>${d.name}:</b> ${d.text}</p>`;
+    const cls = d.name === username ? "me" : "other";
+
+    chat.innerHTML += `
+      <div class="msg ${cls}">
+        <div class="name">${d.name}</div>
+        ${d.text}
+      </div>
+    `;
   });
   chat.scrollTop = chat.scrollHeight;
 });
 
+// ➤ Send message
 window.send = async function () {
-  const name = document.getElementById("name").value;
-  const text = document.getElementById("msg").value;
-  if (!name || !text) return;
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
 
   await addDoc(collection(db, "messages"), {
-    name,
+    name: username,
     text,
     time: serverTimestamp()
   });
 
-  document.getElementById("msg").value = "";
+  input.value = "";
 };
