@@ -31,9 +31,10 @@
       padding: 5px 8px;
       border-radius: 4px;
       font-size: 12px;
+      margin-left: 6px;
     }
 
-    /* CHAT */
+    /* CHAT AREA */
     #chat {
       position: absolute;
       top: 50px;
@@ -44,24 +45,32 @@
       box-sizing: border-box;
     }
 
+    .msg-row {
+      display: flex;
+      width: 100%;
+      margin: 6px 0;
+    }
+
+    .me-row {
+      justify-content: flex-end;
+    }
+
+    .other-row {
+      justify-content: flex-start;
+    }
+
     .msg {
       max-width: 75%;
       padding: 8px 12px;
-      margin: 6px 0;
       border-radius: 8px;
       font-size: 14px;
       box-shadow: 0 1px 2px rgba(0,0,0,.15);
       word-wrap: break-word;
+      background: white;
     }
 
     .me {
       background: #dcf8c6;
-      margin-left: auto;
-    }
-
-    .other {
-      background: #fff;
-      margin-right: auto;
     }
 
     .name {
@@ -93,7 +102,6 @@
     }
 
     #replyBar span {
-      display: block;
       font-weight: bold;
     }
 
@@ -150,8 +158,8 @@
 <div id="chat"></div>
 
 <div id="replyBar">
-  <span id="replyName"></span>
-  <div id="replyText"></div>
+  <span id="replyName"></span><br>
+  <span id="replyText"></span>
   <button onclick="cancelReply()">✕</button>
 </div>
 
