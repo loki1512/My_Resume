@@ -53,7 +53,7 @@ onSnapshot(q, (snapshot) => {
     row.className = "msg-row " + (m.name === username ? "me-row" : "other-row");
 
     const bubble = document.createElement("div");
-    bubble.className = "msg " + (m.name === username ? "me" : "");
+    bubble.className = "msg " + (m.name === username ? "me" : "other");
 
     if (m.reply) {
       bubble.innerHTML += `
