@@ -17,22 +17,13 @@
       color: white;
       padding: 10px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-    }
-
-    .title {
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,.2);
     }
 
     .actions button {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,.2);
       border: none;
       color: white;
       padding: 6px 10px;
@@ -42,18 +33,21 @@
 
     /* CHAT */
     #chat {
-      padding: 10px;
-      height: calc(100vh - 130px);
+      padding: 12px;
+      height: calc(100vh - 170px);
       overflow-y: auto;
     }
 
     .msg {
       max-width: 75%;
       padding: 8px 12px;
-      margin: 6px 0;
+      margin: 10px 0;
       border-radius: 8px;
       font-size: 14px;
       clear: both;
+      box-shadow: 0 1px 2px rgba(0,0,0,.15);
+      position: relative;
+      transition: transform .2s;
     }
 
     .me {
@@ -62,17 +56,35 @@
     }
 
     .other {
-      background: #fff;
+      background: white;
       float: left;
     }
 
     .name {
       font-size: 11px;
       color: #555;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+      font-weight: bold;
     }
 
-    /* INPUT BAR */
+    .reply-box {
+      background: rgba(0,0,0,.05);
+      border-left: 3px solid #075e54;
+      padding: 4px 6px;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    /* REPLY PREVIEW */
+    #replyPreview {
+      display: none;
+      background: #f0f0f0;
+      padding: 8px;
+      border-left: 4px solid #075e54;
+      font-size: 13px;
+    }
+
+    /* INPUT */
     .input-bar {
       display: flex;
       padding: 8px;
@@ -80,6 +92,7 @@
       position: fixed;
       bottom: 0;
       width: 100%;
+      gap: 6px;
     }
 
     .input-bar input {
@@ -91,7 +104,6 @@
     }
 
     .input-bar button {
-      margin-left: 8px;
       padding: 10px 16px;
       border-radius: 50%;
       border: none;
@@ -105,7 +117,7 @@
 <body>
 
 <div class="header">
-  <div class="title">Chat Anywhere</div>
+  <b>Chat Anywhere</b>
   <div class="actions">
     <button onclick="clearChat()">Clear</button>
     <button onclick="logout()">Logout</button>
@@ -113,6 +125,8 @@
 </div>
 
 <div id="chat"></div>
+
+<div id="replyPreview"></div>
 
 <div class="input-bar">
   <input id="msg" placeholder="Type a message">
