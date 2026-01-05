@@ -9,90 +9,112 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background: #e5ddd5;
+      height: 100vh;
+      overflow: hidden;
     }
 
     /* HEADER */
     .header {
+      height: 50px;
       background: #075e54;
       color: white;
-      padding: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,.2);
+      padding: 0 12px;
     }
 
     .actions button {
       background: rgba(255,255,255,.2);
       border: none;
       color: white;
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 4px;
       font-size: 12px;
     }
 
     /* CHAT */
     #chat {
-      padding: 12px;
-      height: calc(100vh - 170px);
+      position: absolute;
+      top: 50px;
+      bottom: 120px;
+      width: 100%;
+      padding: 10px;
       overflow-y: auto;
+      box-sizing: border-box;
     }
 
     .msg {
       max-width: 75%;
       padding: 8px 12px;
-      margin: 10px 0;
+      margin: 6px 0;
       border-radius: 8px;
       font-size: 14px;
-      clear: both;
       box-shadow: 0 1px 2px rgba(0,0,0,.15);
-      position: relative;
-      transition: transform .2s;
+      word-wrap: break-word;
     }
 
     .me {
       background: #dcf8c6;
-      float: right;
+      margin-left: auto;
     }
 
     .other {
-      background: white;
-      float: left;
+      background: #fff;
+      margin-right: auto;
     }
 
     .name {
       font-size: 11px;
-      color: #555;
-      margin-bottom: 4px;
       font-weight: bold;
+      margin-bottom: 3px;
+      color: #555;
     }
 
     .reply-box {
-      background: rgba(0,0,0,.05);
-      border-left: 3px solid #075e54;
-      padding: 4px 6px;
       font-size: 12px;
-      margin-bottom: 6px;
+      padding: 4px 6px;
+      margin-bottom: 4px;
+      border-left: 3px solid #075e54;
+      background: rgba(0,0,0,.05);
     }
 
-    /* REPLY PREVIEW */
-    #replyPreview {
-      display: none;
+    /* REPLY BAR */
+    #replyBar {
+      position: fixed;
+      bottom: 60px;
+      width: 100%;
       background: #f0f0f0;
       padding: 8px;
       border-left: 4px solid #075e54;
+      display: none;
+      box-sizing: border-box;
       font-size: 13px;
+    }
+
+    #replyBar span {
+      display: block;
+      font-weight: bold;
+    }
+
+    #replyBar button {
+      position: absolute;
+      right: 10px;
+      top: 6px;
+      border: none;
+      background: none;
+      font-size: 16px;
     }
 
     /* INPUT */
     .input-bar {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom);
+      width: 100%;
       display: flex;
       padding: 8px;
       background: #f0f0f0;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      gap: 6px;
+      box-sizing: border-box;
     }
 
     .input-bar input {
@@ -104,7 +126,8 @@
     }
 
     .input-bar button {
-      padding: 10px 16px;
+      margin-left: 6px;
+      padding: 10px 14px;
       border-radius: 50%;
       border: none;
       background: #075e54;
@@ -126,7 +149,11 @@
 
 <div id="chat"></div>
 
-<div id="replyPreview"></div>
+<div id="replyBar">
+  <span id="replyName"></span>
+  <div id="replyText"></div>
+  <button onclick="cancelReply()">✕</button>
+</div>
 
 <div class="input-bar">
   <input id="msg" placeholder="Type a message">
