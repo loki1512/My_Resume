@@ -12,7 +12,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* 🔥 Firebase */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyBDdyBI_y8pDHtvCY8IzKH6aU_l4br8m7c",
   authDomain: "chat-anywhere-test.firebaseapp.com",
@@ -25,9 +25,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* 🔐 PASSWORDS */
-const PUBLIC_ROOM_PASSWORD = "PUBLIC_PASSWORD";
-const PRIVATE_ROOM_PASSWORD = "PRIVATE_PASSWORD";
+/* PASSWORDS (CHANGE ANYTIME) */
+const PUBLIC_PASSWORD = "PUBLIC_PASSWORD";
+const PRIVATE_PASSWORD = "PRIVATE_PASSWORD";
 
 /* STATE */
 let username = "";
@@ -39,13 +39,20 @@ const loginDiv = document.getElementById("login");
 const appDiv = document.getElementById("app");
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
-const sendBtn = document.getElementById("sendBtn");
 const roomTitle = document.getElementById("roomTitle");
 
-/* ENTER ROOM */
-window.enterRoom = function () {
-  const name = document.getElementById("nameInput").value.trim();
-  const pass = document.getElementById("passwordInput").value;
+const nameInput = document.getElementById("nameInput");
+const passwordInput = document.getElementById("passwordInput");
+
+const enterBtn = document.getElementById("enterBtn");
+const sendBtn = document.getElementById("sendBtn");
+const clearBtn = document.getElementById("clearBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+/* ENTER ROOM (FIXED) */
+function enterRoom() {
+  const name = nameInput.value.trim();
+  const pass = passwordInput.value;
 
   if (!name || !pass) {
     alert("Enter name and password");
@@ -68,7 +75,7 @@ window.enterRoom = function () {
   appDiv.style.display = "block";
 
   loadMessages();
-};
+}
 
 /* LOAD MESSAGES */
 function loadMessages() {
@@ -118,18 +125,25 @@ async function sendMessage() {
   input.value = "";
 }
 
-sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keydown", e => e.key === "Enter" && sendMessage());
-
 /* CLEAR CURRENT ROOM */
-window.clearChat = async function () {
+async function clearChat() {
   if (!confirm("Clear this chat?")) return;
 
   const snap = await getDocs(collection(db, "rooms", roomId, "messages"));
   snap.forEach(d => deleteDoc(doc(db, "rooms", roomId, "messages", d.id)));
-};
+}
 
 /* LOGOUT */
-window.logout = function () {
+function logout() {
   location.reload();
-};
+}
+
+/* EVENTS (NO INLINE HANDLERS) */
+enterBtn.addEventListener("click", enterRoom);
+passwordInput.addEventListener("keydown", e => e.key === "Enter" && enterRoom());
+
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keydown", e => e.key === "Enter" && sendMessage());
+
+clearBtn.addEventListener("click", clearChat);
+logoutBtn.addEventListener("click", logout);
