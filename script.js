@@ -10,6 +10,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+/* 🔥 Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyBDdyBI_y8pDHtvCY8IzKH6aU_l4br8m7c",
   authDomain: "chat-anywhere-test.firebaseapp.com",
@@ -22,34 +23,35 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔐 Ask name EVERY load
+/* 🔐 ASK NAME — EVERY REFRESH */
 let username = prompt("Enter your name");
-if (!username) {
+if (!username || username.trim() === "") {
   username = "User" + Math.floor(Math.random() * 1000);
 }
 
+/* DOM */
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
 const sendBtn = document.getElementById("sendBtn");
 
-// 🔁 Listen for messages
+/* 🔁 LISTEN FOR MESSAGES */
 onSnapshot(collection(db, "messages"), (snapshot) => {
   chat.innerHTML = "";
-  snapshot.forEach(docSnap => {
-    const d = docSnap.data();
-    const cls = d.name === username ? "me" : "other";
+  snapshot.forEach(d => {
+    const msg = d.data();
+    const cls = msg.name === username ? "me" : "other";
 
     chat.innerHTML += `
       <div class="msg ${cls}">
-        <div class="name">${d.name}</div>
-        ${d.text}
+        <div class="name">${msg.name}</div>
+        ${msg.text}
       </div>
     `;
   });
   chat.scrollTop = chat.scrollHeight;
 });
 
-// ✅ SEND (fixed)
+/* 📤 SEND MESSAGE */
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
@@ -63,23 +65,23 @@ async function sendMessage() {
   input.value = "";
 }
 
-// Button click
+/* Button + Enter key */
 sendBtn.addEventListener("click", sendMessage);
-
-// Enter key
-input.addEventListener("keypress", (e) => {
+input.addEventListener("keydown", e => {
   if (e.key === "Enter") sendMessage();
 });
 
-// 🧹 CLEAR CHAT (delete all messages)
+/* 🧹 CLEAR CHAT — MUST BE GLOBAL */
 window.clearChat = async function () {
-  if (!confirm("Clear all messages?")) return;
+  if (!confirm("Clear all messages for everyone?")) return;
 
   const snap = await getDocs(collection(db, "messages"));
-  snap.forEach(d => deleteDoc(doc(db, "messages", d.id)));
+  for (const d of snap.docs) {
+    await deleteDoc(doc(db, "messages", d.id));
+  }
 };
 
-// 🚪 LOGOUT
+/* 🚪 LOGOUT — MUST BE GLOBAL */
 window.logout = function () {
-  location.reload();
+  location.reload(); // refresh → asks name again
 };
