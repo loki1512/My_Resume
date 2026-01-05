@@ -10,8 +10,10 @@
       font-family: Arial, sans-serif;
       background: #e5ddd5;
       height: 100vh;
+      overflow: hidden;
     }
 
+    /* LOGIN */
     #login {
       height: 100vh;
       display: flex;
@@ -33,6 +35,7 @@
       border: none;
     }
 
+    /* HEADER */
     .header {
       height: 50px;
       background: #075e54;
@@ -50,18 +53,86 @@
       padding: 5px 8px;
       border-radius: 4px;
       font-size: 12px;
+      margin-left: 6px;
     }
 
+    /* CHAT */
     #chat {
       position: absolute;
       top: 50px;
-      bottom: 80px;
+      bottom: 120px;
       width: 100%;
       padding: 12px;
       overflow-y: auto;
       box-sizing: border-box;
     }
 
+    .msg-row {
+      display: flex;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .me-row { justify-content: flex-end; }
+    .other-row { justify-content: flex-start; }
+
+    .msg {
+      max-width: 72%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.15);
+      word-wrap: break-word;
+      background: white;
+    }
+
+    .me {
+      background: #dcf8c6;
+      margin-right: 6px;
+    }
+
+    .other {
+      margin-left: 6px;
+    }
+
+    .name {
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 3px;
+      color: #555;
+    }
+
+    .reply-box {
+      font-size: 12px;
+      padding: 4px 6px;
+      margin-bottom: 4px;
+      border-left: 3px solid #075e54;
+      background: rgba(0,0,0,.05);
+    }
+
+    /* REPLY BAR */
+    #replyBar {
+      position: fixed;
+      bottom: 60px;
+      width: 100%;
+      background: #f0f0f0;
+      padding: 8px;
+      border-left: 4px solid #075e54;
+      display: none;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+
+    #replyBar button {
+      position: absolute;
+      right: 10px;
+      top: 6px;
+      border: none;
+      background: none;
+      font-size: 16px;
+    }
+
+    /* INPUT */
     .input-bar {
       position: fixed;
       bottom: 0;
@@ -69,6 +140,7 @@
       display: flex;
       padding: 8px;
       background: #f0f0f0;
+      box-sizing: border-box;
     }
 
     .input-bar input {
@@ -76,6 +148,7 @@
       padding: 10px;
       border-radius: 20px;
       border: none;
+      outline: none;
     }
 
     .input-bar button {
@@ -92,12 +165,14 @@
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <input id="nameInput" placeholder="Your name">
   <input id="passwordInput" type="password" placeholder="Password">
   <button id="enterBtn">Enter</button>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none;">
   <div class="header">
     <b id="roomTitle">Chat Anywhere</b>
@@ -109,13 +184,18 @@
 
   <div id="chat"></div>
 
+  <div id="replyBar">
+    <b id="replyName"></b><br>
+    <span id="replyText"></span>
+    <button id="cancelReplyBtn">✕</button>
+  </div>
+
   <div class="input-bar">
     <input id="msg" placeholder="Type a message">
     <button id="sendBtn">➤</button>
   </div>
 </div>
 
-<!-- IMPORTANT: defer + module -->
 <script type="module" src="script.js" defer></script>
 </body>
 </html>
