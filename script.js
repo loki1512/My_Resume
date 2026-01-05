@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getFirestore, collection, addDoc, onSnapshot,
-  serverTimestamp, getDocs, deleteDoc, doc
+  serverTimestamp, query, orderBy,
+  getDocs, deleteDoc, doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -24,57 +25,61 @@ if (!username) username = "User" + Math.floor(Math.random() * 1000);
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
 const sendBtn = document.getElementById("sendBtn");
-const replyPreview = document.getElementById("replyPreview");
+const replyBar = document.getElementById("replyBar");
+const replyName = document.getElementById("replyName");
+const replyText = document.getElementById("replyText");
 
-let replyTo = null;
+let replyData = null;
 
-/* LISTEN */
-onSnapshot(collection(db, "messages"), (snap) => {
+/* LISTEN (ORDERED, BOTTOM) */
+const q = query(collection(db, "messages"), orderBy("time"));
+onSnapshot(q, (snap) => {
   chat.innerHTML = "";
   snap.forEach(d => {
     const m = d.data();
-    const cls = m.name === username ? "me" : "other";
-
     const div = document.createElement("div");
-    div.className = `msg ${cls}`;
+    div.className = "msg " + (m.name === username ? "me" : "other");
 
     if (m.reply) {
-      div.innerHTML += `<div class="reply-box">${m.reply}</div>`;
+      div.innerHTML += `<div class="reply-box">${m.reply.name}: ${m.reply.text}</div>`;
     }
 
     div.innerHTML += `<div class="name">${m.name}</div>${m.text}`;
-    addSwipe(div, m.text);
+    enableSwipe(div, m);
     chat.appendChild(div);
   });
+
+  // always stay at bottom
   chat.scrollTop = chat.scrollHeight;
 });
 
 /* SWIPE TO REPLY */
-function addSwipe(el, text) {
+function enableSwipe(el, msg) {
   let startX = 0;
 
   el.addEventListener("touchstart", e => {
     startX = e.touches[0].clientX;
   });
 
-  el.addEventListener("touchmove", e => {
-    const diff = e.touches[0].clientX - startX;
-    if (diff > 40) el.style.transform = "translateX(40px)";
-  });
-
   el.addEventListener("touchend", e => {
     const diff = e.changedTouches[0].clientX - startX;
-    el.style.transform = "";
-    if (diff > 60) setReply(text);
+    if (diff > 60) setReply(msg);
   });
 }
 
 /* SET REPLY */
-function setReply(text) {
-  replyTo = text;
-  replyPreview.style.display = "block";
-  replyPreview.innerText = "Replying to: " + text;
+function setReply(msg) {
+  replyData = { name: msg.name, text: msg.text };
+  replyName.innerText = msg.name;
+  replyText.innerText = msg.text;
+  replyBar.style.display = "block";
 }
+
+/* CANCEL REPLY */
+window.cancelReply = function () {
+  replyData = null;
+  replyBar.style.display = "none";
+};
 
 /* SEND */
 async function sendMessage() {
@@ -84,17 +89,21 @@ async function sendMessage() {
   await addDoc(collection(db, "messages"), {
     name: username,
     text,
-    reply: replyTo,
+    reply: replyData,
     time: serverTimestamp()
   });
 
   input.value = "";
-  replyTo = null;
-  replyPreview.style.display = "none";
+  cancelReply();
 }
 
 sendBtn.addEventListener("click", sendMessage);
 input.addEventListener("keydown", e => e.key === "Enter" && sendMessage());
+
+/* FIX KEYBOARD OVERLAP */
+input.addEventListener("focus", () => {
+  setTimeout(() => chat.scrollTop = chat.scrollHeight, 300);
+});
 
 /* GLOBAL */
 window.clearChat = async function () {
