@@ -3,6 +3,7 @@
 <head>
   <title>Chat Anywhere</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
     body {
       margin: 0;
@@ -10,16 +11,24 @@
       background: #e5ddd5;
     }
 
-    /* Header */
     .header {
       background: #075e54;
       color: white;
-      padding: 12px;
-      font-size: 18px;
-      text-align: center;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
     }
 
-    /* Chat area */
+    .header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
     #chat {
       padding: 10px;
       height: calc(100vh - 120px);
@@ -51,7 +60,6 @@
       margin-bottom: 2px;
     }
 
-    /* Input bar */
     .input-bar {
       display: flex;
       padding: 8px;
@@ -76,19 +84,26 @@
       border: none;
       background: #075e54;
       color: white;
-      font-size: 14px;
+      font-size: 16px;
     }
   </style>
 </head>
+
 <body>
 
-<div class="header">Chat Anywhere</div>
+<div class="header">
+  <span>Chat Anywhere</span>
+  <div>
+    <button onclick="clearChat()">Clear</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
 
 <div id="chat"></div>
 
 <div class="input-bar">
   <input id="msg" placeholder="Type a message">
-  <button onclick="send()">➤</button>
+  <button id="sendBtn">➤</button>
 </div>
 
 <script type="module" src="script.js"></script>
