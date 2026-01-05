@@ -1,16 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  serverTimestamp,
-  getDocs,
-  deleteDoc,
-  doc
+  getFirestore, collection, addDoc, onSnapshot,
+  serverTimestamp, getDocs, deleteDoc, doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* 🔥 Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyBDdyBI_y8pDHtvCY8IzKH6aU_l4br8m7c",
   authDomain: "chat-anywhere-test.firebaseapp.com",
@@ -23,65 +16,91 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* 🔐 ASK NAME — EVERY REFRESH */
+/* NAME */
 let username = prompt("Enter your name");
-if (!username || username.trim() === "") {
-  username = "User" + Math.floor(Math.random() * 1000);
-}
+if (!username) username = "User" + Math.floor(Math.random() * 1000);
 
 /* DOM */
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
 const sendBtn = document.getElementById("sendBtn");
+const replyPreview = document.getElementById("replyPreview");
 
-/* 🔁 LISTEN FOR MESSAGES */
-onSnapshot(collection(db, "messages"), (snapshot) => {
+let replyTo = null;
+
+/* LISTEN */
+onSnapshot(collection(db, "messages"), (snap) => {
   chat.innerHTML = "";
-  snapshot.forEach(d => {
-    const msg = d.data();
-    const cls = msg.name === username ? "me" : "other";
+  snap.forEach(d => {
+    const m = d.data();
+    const cls = m.name === username ? "me" : "other";
 
-    chat.innerHTML += `
-      <div class="msg ${cls}">
-        <div class="name">${msg.name}</div>
-        ${msg.text}
-      </div>
-    `;
+    const div = document.createElement("div");
+    div.className = `msg ${cls}`;
+
+    if (m.reply) {
+      div.innerHTML += `<div class="reply-box">${m.reply}</div>`;
+    }
+
+    div.innerHTML += `<div class="name">${m.name}</div>${m.text}`;
+    addSwipe(div, m.text);
+    chat.appendChild(div);
   });
   chat.scrollTop = chat.scrollHeight;
 });
 
-/* 📤 SEND MESSAGE */
+/* SWIPE TO REPLY */
+function addSwipe(el, text) {
+  let startX = 0;
+
+  el.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  el.addEventListener("touchmove", e => {
+    const diff = e.touches[0].clientX - startX;
+    if (diff > 40) el.style.transform = "translateX(40px)";
+  });
+
+  el.addEventListener("touchend", e => {
+    const diff = e.changedTouches[0].clientX - startX;
+    el.style.transform = "";
+    if (diff > 60) setReply(text);
+  });
+}
+
+/* SET REPLY */
+function setReply(text) {
+  replyTo = text;
+  replyPreview.style.display = "block";
+  replyPreview.innerText = "Replying to: " + text;
+}
+
+/* SEND */
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
   await addDoc(collection(db, "messages"), {
     name: username,
-    text: text,
+    text,
+    reply: replyTo,
     time: serverTimestamp()
   });
 
   input.value = "";
+  replyTo = null;
+  replyPreview.style.display = "none";
 }
 
-/* Button + Enter key */
 sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") sendMessage();
-});
+input.addEventListener("keydown", e => e.key === "Enter" && sendMessage());
 
-/* 🧹 CLEAR CHAT — MUST BE GLOBAL */
+/* GLOBAL */
 window.clearChat = async function () {
-  if (!confirm("Clear all messages for everyone?")) return;
-
+  if (!confirm("Clear all messages?")) return;
   const snap = await getDocs(collection(db, "messages"));
-  for (const d of snap.docs) {
-    await deleteDoc(doc(db, "messages", d.id));
-  }
+  snap.forEach(d => deleteDoc(doc(db, "messages", d.id)));
 };
 
-/* 🚪 LOGOUT — MUST BE GLOBAL */
-window.logout = function () {
-  location.reload(); // refresh → asks name again
-};
+window.logout = () => location.reload();
