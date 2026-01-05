@@ -1,10 +1,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, onSnapshot,
-  serverTimestamp, query, orderBy,
-  getDocs, deleteDoc, doc
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  serverTimestamp,
+  query,
+  orderBy,
+  getDocs,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyBDdyBI_y8pDHtvCY8IzKH6aU_l4br8m7c",
   authDomain: "chat-anywhere-test.firebaseapp.com",
@@ -17,9 +25,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* NAME */
+/* ASK NAME EVERY LOAD */
 let username = prompt("Enter your name");
-if (!username) username = "User" + Math.floor(Math.random() * 1000);
+if (!username || username.trim() === "") {
+  username = "User" + Math.floor(Math.random() * 1000);
+}
 
 /* DOM */
 const chat = document.getElementById("chat");
@@ -31,25 +41,38 @@ const replyText = document.getElementById("replyText");
 
 let replyData = null;
 
-/* LISTEN (ORDERED, BOTTOM) */
+/* LOAD MESSAGES ORDERED */
 const q = query(collection(db, "messages"), orderBy("time"));
-onSnapshot(q, (snap) => {
+onSnapshot(q, (snapshot) => {
   chat.innerHTML = "";
-  snap.forEach(d => {
+
+  snapshot.forEach(d => {
     const m = d.data();
-    const div = document.createElement("div");
-    div.className = "msg " + (m.name === username ? "me" : "other");
+
+    const row = document.createElement("div");
+    row.className = "msg-row " + (m.name === username ? "me-row" : "other-row");
+
+    const bubble = document.createElement("div");
+    bubble.className = "msg " + (m.name === username ? "me" : "");
 
     if (m.reply) {
-      div.innerHTML += `<div class="reply-box">${m.reply.name}: ${m.reply.text}</div>`;
+      bubble.innerHTML += `
+        <div class="reply-box">
+          ${m.reply.name}: ${m.reply.text}
+        </div>
+      `;
     }
 
-    div.innerHTML += `<div class="name">${m.name}</div>${m.text}`;
-    enableSwipe(div, m);
-    chat.appendChild(div);
+    bubble.innerHTML += `
+      <div class="name">${m.name}</div>
+      ${m.text}
+    `;
+
+    enableSwipe(bubble, m);
+    row.appendChild(bubble);
+    chat.appendChild(row);
   });
 
-  // always stay at bottom
   chat.scrollTop = chat.scrollHeight;
 });
 
@@ -81,14 +104,14 @@ window.cancelReply = function () {
   replyBar.style.display = "none";
 };
 
-/* SEND */
+/* SEND MESSAGE */
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
 
   await addDoc(collection(db, "messages"), {
     name: username,
-    text,
+    text: text,
     reply: replyData,
     time: serverTimestamp()
   });
@@ -105,11 +128,14 @@ input.addEventListener("focus", () => {
   setTimeout(() => chat.scrollTop = chat.scrollHeight, 300);
 });
 
-/* GLOBAL */
+/* CLEAR CHAT */
 window.clearChat = async function () {
-  if (!confirm("Clear all messages?")) return;
+  if (!confirm("Clear all messages for everyone?")) return;
   const snap = await getDocs(collection(db, "messages"));
   snap.forEach(d => deleteDoc(doc(db, "messages", d.id)));
 };
 
-window.logout = () => location.reload();
+/* LOGOUT */
+window.logout = function () {
+  location.reload();
+};
