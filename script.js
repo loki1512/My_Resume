@@ -12,7 +12,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* 🔥 FIREBASE */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyBDdyBI_y8pDHtvCY8IzKH6aU_l4br8m7c",
   authDomain: "chat-anywhere-test.firebaseapp.com",
@@ -25,38 +25,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* 🔐 PASSWORDS — SET THESE */
+/* PASSWORDS */
 const PUBLIC_PASSWORD = "khushi";
 const PRIVATE_PASSWORD = "Loki";
 
-/* WAIT FOR DOM (CRITICAL FIX) */
 window.addEventListener("DOMContentLoaded", () => {
 
-  const loginDiv = document.getElementById("login");
+  const login = document.getElementById("login");
   const appDiv = document.getElementById("app");
   const chat = document.getElementById("chat");
-  const input = document.getElementById("msg");
-  const roomTitle = document.getElementById("roomTitle");
 
   const nameInput = document.getElementById("nameInput");
   const passwordInput = document.getElementById("passwordInput");
   const enterBtn = document.getElementById("enterBtn");
+
+  const input = document.getElementById("msg");
   const sendBtn = document.getElementById("sendBtn");
   const clearBtn = document.getElementById("clearBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
+  const replyBar = document.getElementById("replyBar");
+  const replyName = document.getElementById("replyName");
+  const replyText = document.getElementById("replyText");
+  const cancelReplyBtn = document.getElementById("cancelReplyBtn");
+
+  const roomTitle = document.getElementById("roomTitle");
+
   let username = "";
   let roomId = "";
+  let replyData = null;
   let unsubscribe = null;
 
   function enterRoom() {
     const name = nameInput.value.trim();
     const pass = passwordInput.value;
 
-    if (!name || !pass) {
-      alert("Enter name and password");
-      return;
-    }
+    if (!name || !pass) return alert("Enter name and password");
 
     if (pass === PUBLIC_PASSWORD) {
       roomId = "room_public";
@@ -65,14 +69,12 @@ window.addEventListener("DOMContentLoaded", () => {
       roomId = "room_private";
       roomTitle.innerText = "Private Room";
     } else {
-      alert("Wrong password");
-      return;
+      return alert("Wrong password");
     }
 
     username = name;
-    loginDiv.style.display = "none";
+    login.style.display = "none";
     appDiv.style.display = "block";
-
     loadMessages();
   }
 
@@ -88,9 +90,42 @@ window.addEventListener("DOMContentLoaded", () => {
       chat.innerHTML = "";
       snap.forEach(d => {
         const m = d.data();
-        chat.innerHTML += `<div><b>${m.name}:</b> ${m.text}</div>`;
+
+        const row = document.createElement("div");
+        row.className = "msg-row " + (m.name === username ? "me-row" : "other-row");
+
+        const bubble = document.createElement("div");
+        bubble.className = "msg " + (m.name === username ? "me" : "other");
+
+        if (m.reply) {
+          bubble.innerHTML += `
+            <div class="reply-box">
+              ${m.reply.name}: ${m.reply.text}
+            </div>
+          `;
+        }
+
+        bubble.innerHTML += `<div class="name">${m.name}</div>${m.text}`;
+
+        enableSwipe(bubble, m);
+        row.appendChild(bubble);
+        chat.appendChild(row);
       });
+
       chat.scrollTop = chat.scrollHeight;
+    });
+  }
+
+  function enableSwipe(el, msg) {
+    let startX = 0;
+    el.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+    el.addEventListener("touchend", e => {
+      if (e.changedTouches[0].clientX - startX > 60) {
+        replyData = { name: msg.name, text: msg.text };
+        replyName.innerText = msg.name;
+        replyText.innerText = msg.text;
+        replyBar.style.display = "block";
+      }
     });
   }
 
@@ -101,14 +136,17 @@ window.addEventListener("DOMContentLoaded", () => {
     await addDoc(collection(db, "rooms", roomId, "messages"), {
       name: username,
       text,
+      reply: replyData,
       time: serverTimestamp()
     });
 
     input.value = "";
+    replyData = null;
+    replyBar.style.display = "none";
   }
 
   async function clearChat() {
-    if (!confirm("Clear chat?")) return;
+    if (!confirm("Clear this chat?")) return;
     const snap = await getDocs(collection(db, "rooms", roomId, "messages"));
     snap.forEach(d => deleteDoc(doc(db, "rooms", roomId, "messages", d.id)));
   }
@@ -122,4 +160,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   clearBtn.addEventListener("click", clearChat);
   logoutBtn.addEventListener("click", () => location.reload());
+  cancelReplyBtn.addEventListener("click", () => {
+    replyData = null;
+    replyBar.style.display = "none";
+  });
 });
