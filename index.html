@@ -11,27 +11,39 @@
       background: #e5ddd5;
     }
 
+    /* HEADER */
     .header {
       background: #075e54;
       color: white;
       padding: 10px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 16px;
+      justify-content: space-between;
     }
 
-    .header button {
-      background: none;
+    .title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .actions button {
+      background: rgba(255,255,255,0.2);
       border: none;
       color: white;
-      font-size: 14px;
-      margin-left: 10px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
     }
 
+    /* CHAT */
     #chat {
       padding: 10px;
-      height: calc(100vh - 120px);
+      height: calc(100vh - 130px);
       overflow-y: auto;
     }
 
@@ -60,6 +72,7 @@
       margin-bottom: 2px;
     }
 
+    /* INPUT BAR */
     .input-bar {
       display: flex;
       padding: 8px;
@@ -92,8 +105,8 @@
 <body>
 
 <div class="header">
-  <span>Chat Anywhere</span>
-  <div>
+  <div class="title">Chat Anywhere</div>
+  <div class="actions">
     <button onclick="clearChat()">Clear</button>
     <button onclick="logout()">Logout</button>
   </div>
